@@ -3,6 +3,8 @@ package edu.brown.cs.systems.xtrace.server;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.io.FileWriter;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -93,7 +95,8 @@ public class WebServer extends Server {
         context.addServlet(new ServletHolder(new TitleLikeServlet()), "/titleLike/*");
 
         // JSON APIs for interactive visualization
-        context.addServlet(new ServletHolder(new GetJSONReportsServlet()), "/interactive/reports/*");
+        context.addServlet(new ServletHolder(new GetAllJSONReportsServlet()), "/interactive/reportsall/*");
+       	context.addServlet(new ServletHolder(new GetJSONReportsServlet()), "/interactive/reports/*");
         context.addServlet(new ServletHolder(new GetOverlappingTasksServlet()), "/interactive/overlapping/*");
         context.addServlet(new ServletHolder(new GetTagsForTaskServlet()), "/interactive/tags/*");
         context.addServlet(new ServletHolder(new GetTasksForTags()), "/interactive/taggedwith/*");
@@ -163,6 +166,55 @@ public class WebServer extends Server {
             out.write("]");
         }
     }
+
+    private class GetAllJSONReportsServlet extends HttpServlet {
+        private static final long serialVersionUID = -3918120497812383181L;
+
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            response.setContentType("text/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+            String uri = request.getRequestURI();
+            int pathLen = request.getServletPath().length() + 1;
+            String taskIdString = uri.length() > pathLen ? uri.substring(pathLen) : null;
+            String[] taskIds = taskIdString.split(",");
+	    String jsonPath = "/home/ubuntu/xtraces-json/"; 
+            Writer out2 = response.getWriter();
+	    
+            boolean firstTaskDone = false;
+            int count = 0;
+            for (String taskId : taskIds) {
+		BufferedWriter out = new BufferedWriter(new FileWriter(jsonPath + taskId + ".json"));
+            	out.write("[");
+		out2.write("Writing task " + count + ": " + taskId);                
+		Log.info("Writing task " + count++ + ": " + taskId);
+
+                if (firstTaskDone)
+                    out.write("\n,");
+                firstTaskDone = true;
+
+                out.append("{\"id\":\"");
+                out.append(taskId);
+                out.append("\",\"reports\":[");
+
+                boolean firstReportDone = false;
+                Iterator<Report> iter = data.getReports(taskId);
+                while (iter.hasNext()) {
+                    if (firstReportDone)
+                        out.append(",\n");
+                    out.append(iter.next().jsonRepr().toJSONString());
+                    firstReportDone = true;
+                }
+
+                out.append("]}");
+                Log.info("... done");
+		
+            	out.write("]");
+		out.close();
+            }
+
+        }
+    }
+
 
     private class GetOverlappingTasksServlet extends HttpServlet {
         private static final long serialVersionUID = -6431290990122203372L;

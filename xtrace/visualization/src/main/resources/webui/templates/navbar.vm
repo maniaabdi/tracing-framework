@@ -6,6 +6,7 @@
         <input class="compare-selected" type="submit" value="Side-by-side Comparison" onclick="compareSelected()" title="Compare two graphs side-by-side using the graph visualization"/>
         <input class="swimlane-selected" type="submit" value="Swimlane Selected" onclick="swimlaneSelected()" title="View a swimlane visualization of the selected task IDs"/>
         <input class="selected-related" type="submit" value="Select Related" onclick="selectRelated()" title="Select all Task IDs whose timestamps overlap with the select task ID timestamps"/>
+        <input class="selected-all" type="submit" value="Save All JSON" onclick="selectAll()" title="Save all Tasks in json format"/>	
     </div>
     <div style="float: right; display: inline-block;">
         <a href="$request.requestURI?offset=$prevOffset&length=$length">[&lt;&lt; Previous $length]</a>
@@ -16,6 +17,25 @@
 </div>
 
 <script language="javascript">
+
+function getAllIDs() {
+    var ids = [];
+    var checkboxes = document.getElementsByClassName("select-trace");
+    for (var i = 0; i < checkboxes.length; i++) {
+        var checkbox = checkboxes[i];
+        ids.push(checkbox.value);
+    }
+    return ids;
+}
+
+
+function selectAll() {
+    var selected = getAllIDs();
+    if (selected.length >= 1) {
+        window.alert(selected.length);
+        window.open("/interactive/reportsall/"+selected.join(), "_blank");
+    }
+}
 
 function getSelectedIDs() {
     var ids = [];
