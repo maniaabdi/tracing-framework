@@ -148,7 +148,7 @@
     <form action="$request.requestURI" method="get">
         <div style="text-align: right">
             <input type="hidden" name="offset" value="$offset" />
-            Results per page: <input type="text" name="length" value="$length" size="6" />
+            Results per page: <input type="text" name="length" value="$reportStore.numTasks()" size="6" />
             <input type="submit" value="Change" />
         </div>
     </form>

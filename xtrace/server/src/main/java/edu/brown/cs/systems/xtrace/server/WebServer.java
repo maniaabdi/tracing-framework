@@ -184,13 +184,8 @@ public class WebServer extends Server {
             int count = 0;
             for (String taskId : taskIds) {
 		BufferedWriter out = new BufferedWriter(new FileWriter(jsonPath + taskId + ".json"));
-            	out.write("[");
-		out2.write("Writing task " + count + ": " + taskId);                
+		out2.write("Writing task " + count + ": " + taskId + "\n");                
 		Log.info("Writing task " + count++ + ": " + taskId);
-
-                if (firstTaskDone)
-                    out.write("\n,");
-                firstTaskDone = true;
 
                 out.append("{\"id\":\"");
                 out.append(taskId);
@@ -207,8 +202,6 @@ public class WebServer extends Server {
 
                 out.append("]}");
                 Log.info("... done");
-		
-            	out.write("]");
 		out.close();
             }
 
